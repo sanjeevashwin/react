@@ -8,21 +8,24 @@ services:
       - "5432:5432"
     volumes:
       - data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: sanjeev@31
 
-  rabbitmq:
-    image: rabbitmq:3.10-rc-management-alpine
-    ports:
-      # AMQP protocol port
-      - "5672:5672"
-      # HTTP management UI
-      - "15672:15672"
+
+  # rabbitmq:
+  #   image: rabbitmq:3.10-rc-management-alpine
+  #   ports:
+  #     # AMQP protocol port
+  #     - "5672:5672"
+  #     # HTTP management UI
+  #     - "15672:15672"
 
   auth:
     build:
       context: ./auth
       args:
-        - NODE_ENV=development
-      target: dev
+        - NODE_ENV=production
+      target: prod
     ports:
       - "3001:3001"
     volumes:
@@ -33,43 +36,43 @@ services:
       - ./auth/.env
     depends_on:
       - postgresql
-      - rabbitmq
+    #   - rabbitmq
 
-  products:
-    build:
-      context: ./products
-      args:
-        - NODE_ENV=development
-      target: dev
-    ports:
-      - "3002:3002"
-    volumes:
-      - ./products:/app/
-    environment:
-      - SERVICE=products
-    env_file:
-      - ./products/.env
-    depends_on:
-      - postgresql
-      - rabbitmq
+  # products:
+  #   build:
+  #     context: ./products
+  #     args:
+  #       - NODE_ENV=development
+  #     target: prod
+  #   ports:
+  #     - "3002:3002"
+  #   volumes:
+  #     - ./products:/app/
+  #   environment:
+  #     - SERVICE=products
+  #   env_file:
+  #     - ./products/.env
+  #   depends_on:
+  #     - postgresql
+  #     - rabbitmq
 
-  orders:
-    build:
-      context: ./orders
-      args:
-        - NODE_ENV=development
-      target: dev
-    ports:
-      - "3003:3003"
-    volumes:
-      - ./orders:/app/
-    environment:
-      - SERVICE=orders
-    env_file:
-      - ./orders/.env
-    depends_on:
-      - postgresql
-      - rabbitmq
+  # orders:
+  #   build:
+  #     context: ./orders
+  #     args:
+  #       - NODE_ENV=development
+  #     target: prod
+  #   ports:
+  #     - "3003:3003"
+  #   volumes:
+  #     - ./orders:/app/
+  #   environment:
+  #     - SERVICE=orders
+  #   env_file:
+  #     - ./orders/.env
+  #   depends_on:
+  #     - postgresql
+  #     - rabbitmq
 
 volumes:
   data:

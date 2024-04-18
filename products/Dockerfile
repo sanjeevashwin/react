@@ -2,7 +2,7 @@
 FROM node:14-alpine as base
 
 # install curl for debugging
-RUN apk add curl
+RUN apk add --no-cache curl && npm install -g nodemon
 
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
@@ -16,7 +16,7 @@ EXPOSE $PORT
 
 # you'll likely want the latest npm, regardless of node version, for speed and fixes
 # but pin this version for the best stability
-RUN npm i npm@latest -g
+#RUN npm i npm@latest -g
 
 # install dependencies first
 # we have to create the dir with root and change perms
@@ -34,25 +34,27 @@ ENV PATH app/node_modules/.bin:$PATH
 
 # a dev and build-only stage. we don't need to
 # copy in code since we bind-mount it
-FROM base as dev
-ENV NODE_ENV=development
-RUN npm install --only=development
+#FROM base as dev
+#ENV NODE_ENV=development
+#RUN npm install 
 # We use "npm start" here in development and node in production
-CMD ["npm", "start"]
+#CMD ["npm", "start"]
 
 
-FROM dev as test
+#FROM dev as test
 # copy in our source code last, as it changes the most
 # copy in as node user, so permissions match what we need
-COPY --chown=node:node . .
-CMD ["npm", "test"]
+#COPY --chown=node:node . .
+#CMD ["npm", "test"]
 # you would also run your tests here
 
 
 # this only has minimal deps and files
 FROM base as prod
 # copy in as node user, so permissions match what we need
+
 COPY --chown=node:node . .
+
 # check every 30s to ensure this service returns HTTP 200
 HEALTHCHECK --interval=600s CMD node ./src/healthcheck.js
 CMD ["node", "./index.js"]
